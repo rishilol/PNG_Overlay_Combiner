@@ -10,13 +10,23 @@ CORS(app)
 
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'output'
-PORT = 5001  # Changed port to 5001
+PORT = 5001
 
 # Ensure directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/')
+def home():
+    return jsonify({
+        'status': 'API is running',
+        'endpoints': {
+            'POST /api/combine': 'Upload and combine two images',
+            'GET /output/<filename>': 'Get processed image result'
+        }
+    })
 
 @app.route('/api/combine', methods=['POST'])
 def combine():
@@ -66,7 +76,7 @@ def combine():
         
     except Exception as e:
         print("Error occurred:")
-        print(traceback.format_exc())  # This will print the full error traceback
+        print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
 
 @app.route('/output/<filename>')
@@ -81,6 +91,18 @@ def serve_output(filename):
         print(f"Error serving file {filename}:")
         print(traceback.format_exc())
         return jsonify({'error': 'File not found'}), 404
+
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({
+        'error': 'Not found',
+        'message': 'The requested URL was not found on the server.',
+        'available_endpoints': {
+            'GET /': 'API information',
+            'POST /api/combine': 'Upload and combine two images',
+            'GET /output/<filename>': 'Get processed image result'
+        }
+    }), 404
 
 if __name__ == '__main__':
     print("\nServer starting...")
