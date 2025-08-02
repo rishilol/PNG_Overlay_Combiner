@@ -13,7 +13,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CompareIcon from '@mui/icons-material/Compare';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5001';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://your-vercel-app-name.vercel.app/api'
+  : 'http://localhost:5001';
 
 const ImageCombiner = () => {
   const [image1, setImage1] = useState(null);
@@ -43,7 +45,7 @@ const ImageCombiner = () => {
     formData.append('image2', image2);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/combine`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/combine`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
